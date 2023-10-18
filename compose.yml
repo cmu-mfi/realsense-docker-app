@@ -1,0 +1,37 @@
+version: '3'
+services:
+  realsense-humble-container:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: realsense-aruco:latest
+    container_name: realsense-aruco-container
+    privileged: true
+    hostname: realsense-aruco-container
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: "host"
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+      - 8.8.8.8
+    environment:
+      - "DISPLAY"
+      - "NVIDIA_VISIBLE_DEVICES=all"
+      - "NVIDIA_DRIVER_CAPABILITIES=all"
+      - "FASTRTPS_DEFAULT_PROFILES_FILE=/usr/local/share/middleware_profiles/rtps_udp_profile.xml"
+      - "source /opt/ros/humble/setup.bash"
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix"
+      - "/home/mfi/.Xauthority:/home/mfi/.Xauthority:rw"
+      - "/home/:/home/"
+      - "/dev/*:/dev/*"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    command: /bin/bash -c "source /opt/ros/humble/setup.bash && source /root/ros2_ws/install/local_setup.bash && ./run_launches.py"
